@@ -8,106 +8,85 @@
 #include <sstream>
 
 HexagonCorrelationHistos::HexagonCorrelationHistos(eudaq::StandardPlane p, RootMonitor *mon)
-  : _id(p.ID()), _maxX(p.XSize()),  _maxY(p.YSize()), _wait(false){
+  : _id(p.ID()), _wait(false){
 
     
   char out[1024], out2[1024], out3[1024], out4[1024];
 
   _mon = mon;
-
+  
   // std::cout << "HexagonCorrelationHistos::Sensorname: " << _sensor << " "<< _id<<
   // std::endl;
 
-  if (_maxX != -1 && _maxY != -1) {
+  for (int _brd=1; _brd<=NSENSORS; _brd++){
+    
     for (int _ID=0; _ID<NHEXAGONS_PER_SENSOR; _ID++) {
-
+      
       if (_id >= _ID) continue;
 
-      sprintf(out, "%i vs. %i LG ", _id, _ID);
-      sprintf(out2, "h_SignalLGSum_%i_%i", _id, _ID);
-      _correlationSignalLGSum[_ID] = new TH2I(out2, out, 50, 0., 8*1200., 50, 0., 8*1200.);
+      std::cout<<" Initializing the histograms for brd = "<<_brd<<"  _id1="<<_id<<"  _id2="<<_ID<<std::endl;
+      
+      sprintf(out, "LG. BRD %i: module %i vs. %i LG ", _brd, _id, _ID);
+      sprintf(out2, "h_SignalLGSum_Brd_%i_mod_%ivs%i", _brd, _id, _ID);
+      const int superID = (_brd-1)*100+_id*10+_ID;
+      //_correlationSignalLGSum[superID] = NULL;
+      _correlationSignalLGSum[superID] = new TH2I(out2, out, 50, 0., 8*1200., 50, 0., 8*1200.);
       //TB 2017: Energy sum in a layer of the EE part for 90 GeV electrons barely reaches 1000 MIPs.
       // Also, 1 MIP ~ 5 LG ADC //Thorben Quast, 07 June 2018
+      
+      sprintf(out3, "LG (TS3-TS0) Sum, Module %i (ADC)", _id);
+      sprintf(out4, "LG (TS3-TS0) Sum, Module %i (ADC)", _ID);
+      SetHistoAxisLabels(_correlationSignalLGSum[superID], out3, out4);  
 
-      sprintf(out3, "LG TS3 - TS0 Sum_{%i} (ADC)", _id);
-      sprintf(out4, "LG TS3 - TS0 SUM_{%i} (ADC)", _ID);
-      SetHistoAxisLabels(_correlationSignalLGSum[_ID], out3, out4);  
+      sprintf(out, "TOA. BRD %i: module %i vs. %i", _brd, _id, _ID);
+      sprintf(out2, "h_corrTOA_Brd_%i_mod_%ivs%i", _brd, _id, _ID);
+      _correlationTOA[superID] = new TH2I(out2, out, 50, 0., 2000., 50, 0., 2000.);
+      sprintf(out3, "AVG TOA,  Module %i (ADC)", _id);
+      sprintf(out4, "AVG TOA,  Module %i (ADC)", _ID);
+      SetHistoAxisLabels(_correlationTOA[superID], out3, out4);  
 
-      sprintf(out, "%i vs. %i TOA", _id, _ID);
-      sprintf(out2, "h_corrTOA_%i_%i", _id, _ID);
-      _correlationTOA[_ID] = new TH2I(out2, out, 100, 0., 2000., 100, 0., 2000.);
-      sprintf(out3, "AVG TOA Module %i (ADC)", _id);
-      sprintf(out4, "AVG TOA Module %i (ADC)", _ID);
-      SetHistoAxisLabels(_correlationTOA[_ID], out3, out4);  
-
-    }
-    
-
-    // make a plane array for calculating e..g hotpixels and occupancy
-    plane_map_array = new int *[_maxX];
-
-    if (plane_map_array != NULL) {
-      for (int j = 0; j < _maxX; j++) {
-        plane_map_array[j] = new int[_maxY];
-        if (plane_map_array[j] == NULL) {
-          cout << "HexagonCorrelationHistos :Error in memory allocation" << endl;
-          exit(-1);
-        }
-      }
-      zero_plane_array();
-    }
-
-  } else {
-    std::cout << "No max sensorsize known!" << std::endl;
-  }
-
-
-}
-
-int HexagonCorrelationHistos::zero_plane_array() {
-  for (int i = 0; i < _maxX; i++) {
-    for (int j = 0; j < _maxY; j++) {
-      plane_map_array[i][j] = 0;
     }
   }
-  return 0;
+  
 }
-
 
 void HexagonCorrelationHistos::Fill(const eudaq::StandardPlane &plane1, const eudaq::StandardPlane &plane2) {
-  // std::cout<< "FILL with a plane." << std::endl;
-  int _ID = plane2.ID();
 
+  
+ int _ID = plane2.ID();
 
-  //example: sum of HG in TS3 - TS0
-  const unsigned int sumLGTS3_1 = plane1.GetPixel(1, 30);
-  const unsigned int sumHLTS3_2 = plane2.GetPixel(1, 30);
+ 
+ char buffer[2];  buffer[0] = plane2.Sensor()[13];
+ int brdID = atoi(buffer);
+ //std::cout<<"Brd ID = "<<brdID<<std::endl;
 
-  _correlationSignalLGSum[_ID]->Fill(sumLGTS3_1, sumHLTS3_2);
-
-
-
+ // TOA correlations
   if (plane1.HitPixels() > 0 && plane2.HitPixels() > 0){
     const unsigned int avgTOA_1 = plane1.GetPixel(0, 30);
     const unsigned int avgTOA_2 = plane2.GetPixel(0, 30);
 
-    _correlationTOA[_ID]->Fill(avgTOA_1, avgTOA_2);
-  }
+    //_correlationTOA[(brdID-1)*100+_id*10+_ID]->Fill(avgTOA_1, avgTOA_2);
 
-  //histograms to be filled here
+    //sum of LG in TS3 - TS0
+    const unsigned int sumLG_TS3_1 = plane1.GetPixel(0, 31);
+    const unsigned int sumLG_TS3_2 = plane2.GetPixel(0, 31);
+    
+    _correlationSignalLGSum[(brdID-1)*100+_id*10+_ID]->Fill(sumLG_TS3_1, sumLG_TS3_2);
+  }
 
 }
 
 void HexagonCorrelationHistos::Reset() {
 
-  for (int _ID=0; _ID<NHEXAGONS_PER_SENSOR; _ID++) {
-    if (_correlationSignalLGSum.find(_ID)==_correlationSignalLGSum.end()) continue;
-    _correlationSignalLGSum[_ID]->Reset();
-    _correlationTOA[_ID]->Reset();
+  for (int _brd=0; _brd<NSENSORS; _brd++){
+    for (int _id1=0; _id1<NHEXAGONS_PER_SENSOR; _id1++) {
+      for (int _id2=_id1+1; _id2<NHEXAGONS_PER_SENSOR; _id2++) {
+	if (_correlationSignalLGSum.find(_brd*100+_id1*10+_id2)==_correlationSignalLGSum.end()) continue;
+	_correlationSignalLGSum[_brd*100+_id1*10+_id2]->Reset();
+	_correlationTOA[_brd*100+_id1*10+_id2]->Reset();
+      }	
+    }
   }
-    
-  // we have to reset the aux array as well
-  zero_plane_array();
 }
 
 void HexagonCorrelationHistos::Calculate(const int currentEventNum) {
@@ -116,14 +95,16 @@ void HexagonCorrelationHistos::Calculate(const int currentEventNum) {
 
 void HexagonCorrelationHistos::Write() {
   
-  for (int _ID=0; _ID<NHEXAGONS_PER_SENSOR; _ID++) {
-    if (_correlationSignalLGSum.find(_ID)==_correlationSignalLGSum.end()) continue;
-    _correlationSignalLGSum[_ID]->Write();
-    _correlationTOA[_ID]->Write();
-
+  for (int _brd=0; _brd<NSENSORS; _brd++){
+    for (int _id1=0; _id1<NHEXAGONS_PER_SENSOR; _id1++) {
+      for (int _id2=_id1+1; _id2<NHEXAGONS_PER_SENSOR; _id2++) {
+	if (_correlationSignalLGSum.find(_brd*100+_id1*10+_id2)==_correlationSignalLGSum.end()) continue;
+	_correlationSignalLGSum[_brd*100+_id1*10+_id2]->Write();
+	_correlationTOA[_brd*100+_id1*10+_id2]->Write();
+      }	
+    }
   }
-    
-
+  
 }
 
 int HexagonCorrelationHistos::SetHistoAxisLabelx(TH1 *histo, string xlabel) {

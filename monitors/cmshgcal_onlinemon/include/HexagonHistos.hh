@@ -101,8 +101,8 @@ public:
   void setRootMonitor(RootMonitor *mon) { _mon = mon; }
 
 private:
-  int **plane_map_array; // store an array representing the map
-  int zero_plane_array(); // fill array with zeros;
+  //int **plane_map_array; // store an array representing the map
+  //int zero_plane_array(); // fill array with zeros;
   int SetHistoAxisLabelx(TH1 *histo, string xlabel);
   int SetHistoAxisLabely(TH1 *histo, string ylabel);
   int SetHistoAxisLabels(TH1 *histo, string xlabel, string ylabel);
