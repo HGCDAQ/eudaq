@@ -24,9 +24,6 @@
 #include "HexagonCorrelationHistos.hh"
 #include "BaseCollection.hh"
 
-
-#define NHEXAGONS_PER_SENSOR 8
-
 class HexagonCorrelationCollection : public BaseCollection {
   RQ_OBJECT("HexagonCorrelationCollection")
 protected:

@@ -51,7 +51,7 @@ namespace eudaq {
 	cnf.Print();
 
 	cnf.SetSection("Producer.CMS-HGCAL");
-	m_compressed = cnf.Get("DoCompression", true);
+	m_compressed = cnf.Get("DoCompression", false);
 	
 	cnf.SetSection("CMSHGCAL-OnlineMon");
 	cnf.Print();

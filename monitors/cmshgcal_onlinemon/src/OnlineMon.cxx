@@ -44,9 +44,9 @@
 
 using namespace std;
 // Enable this for debug options:
-#ifndef DEBUG
-#define DEBUG
-#endif
+//#ifndef DEBUG
+//#define DEBUG
+//#endif
 
 RootMonitor::RootMonitor(const std::string & runcontrol, const std::string & datafile, int /*x*/, int /*y*/, int /*w*/,
 			 int /*h*/, int argc, int offline, const unsigned lim, const unsigned skip_, const unsigned int skip_with_counter, const std::string & conffile)
@@ -77,13 +77,13 @@ RootMonitor::RootMonitor(const std::string & runcontrol, const std::string & dat
   // put collections into the vector
   _colls.push_back(hexaCollection);
   _colls.push_back(hexaCorrelationCollection);
-  _colls.push_back(ahcalCollection);
+  //_colls.push_back(ahcalCollection);
   _colls.push_back(wcCollection);
   _colls.push_back(wccorrCollection);
-  _colls.push_back(beamTelescopeHitCollection);
-  _colls.push_back(beamTelescopeCorrCollection);
-  _colls.push_back(daturaToHGCALCorrelationCollection);
-  _colls.push_back(dwcToHGCALCorrelationCollection);
+  //_colls.push_back(beamTelescopeHitCollection);
+  //_colls.push_back(beamTelescopeCorrCollection);
+  //_colls.push_back(daturaToHGCALCorrelationCollection);
+  //_colls.push_back(dwcToHGCALCorrelationCollection);
   
   // set the root Monitor
   if (_offline <= 0) {

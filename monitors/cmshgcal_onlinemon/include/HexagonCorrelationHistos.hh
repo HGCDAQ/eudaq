@@ -16,6 +16,9 @@
 
 #include "eudaq/StandardEvent.hh"
 
+#define NHEXAGONS_PER_SENSOR 8 // Max number of Hexabords per readout board
+#define NSENSORS 4 // Number of readout boards
+
 using namespace std;
 
 class RootMonitor;
@@ -23,8 +26,8 @@ class RootMonitor;
 class HexagonCorrelationHistos {
 protected:
   int _id;
-  int _maxX;
-  int _maxY;
+  //int _maxX;
+  //int _maxY;
   bool _wait;
   
   std::map<int, TH2I *> _correlationSignalLGSum;    //example 06 June 2018: HG Signal sum
@@ -45,8 +48,8 @@ public:
   void setRootMonitor(RootMonitor *mon) { _mon = mon; }
 
 private:
-  int **plane_map_array; // store an array representing the map
-  int zero_plane_array(); // fill array with zeros;
+  //int **plane_map_array; // store an array representing the map
+  //int zero_plane_array(); // fill array with zeros;
   int SetHistoAxisLabelx(TH1 *histo, string xlabel);
   int SetHistoAxisLabely(TH1 *histo, string ylabel);
   int SetHistoAxisLabels(TH1 *histo, string xlabel, string ylabel);
