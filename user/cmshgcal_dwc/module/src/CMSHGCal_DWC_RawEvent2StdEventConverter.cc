@@ -114,6 +114,7 @@ bool CMSHGCAL_DWC_RawEvent2StdEventConverter::Converting(eudaq::EventSPC rev, eu
 
   //Hard coded assignment of channel time stamps to DWC planes for the DQM to guarantee downward compatibility with <=July 2018 DQM
   //note: for the DWC correlation plots, the indexing must start at 0!
+
   if (nBlocks >= 2) {  //at least two TDCs
     
     eudaq::StandardPlane DWCA_plane_2(4, EVENT_TYPE, sensortype);
@@ -125,7 +126,7 @@ bool CMSHGCAL_DWC_RawEvent2StdEventConverter::Converting(eudaq::EventSPC rev, eu
     sev->AddPlane(DWCA_plane_2); 
 
   }
-
+  
 
   for (size_t i = 0; i < unpacked.size(); i++) delete unpacked[i];
   unpacked.clear();
